@@ -1,0 +1,21 @@
+# expected-components.txt — third-party components the build must expose, exactly.
+#
+# Every adopted library appears under a lib* name in the encoder and decoder
+# lists, so comparing those two lists in both directions proves the reduction:
+# a silently re-enabled library fails as an unexpected entry, and one that
+# dropped out fails as a missing entry. SDL2 and OpenSSL have no lib* entry;
+# they are covered by the ffplay playback and https protocol checks instead.
+#
+# Format: list|name   (list is encoders or decoders)
+encoders|libmp3lame
+encoders|libopus
+encoders|libsvtav1
+encoders|libx264
+encoders|libx264rgb
+encoders|libx265
+encoders|libvpx
+encoders|libvpx-vp9
+decoders|libdav1d
+decoders|libopus
+decoders|libvpx
+decoders|libvpx-vp9

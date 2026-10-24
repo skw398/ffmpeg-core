@@ -8,10 +8,12 @@ ROOT="$HERE/.."
 PREFIX="${PREFIX:-$ROOT/build/prefix}"
 OUT="${OUT:-$ROOT/build/artifacts}"
 BIN="$PREFIX/bin"
+COMPONENTS="$HERE/data/expected-components.txt"
 mkdir -p "$OUT"
 # Filters execute in the fixture directory, so binary and log paths must be absolute.
 BIN=$(cd "$BIN" && pwd)
 OUT=$(cd "$OUT" && pwd)
+T="$OUT/tests"; mkdir -p "$T"
 
 fail=0
 
@@ -71,8 +73,38 @@ for x in formats demuxers muxers codecs encoders decoders bsfs filters \
 done
 echo "ok  saved buildconf and feature lists"
 
+# --- the reduction is a closed set ---
+# Every third-party component carries a lib* name, so the lists describe exactly
+# which libraries ended up in the binary. Comparing both directions catches a
+# silently re-enabled library as well as one that dropped out.
+third_party() { # kind
+  kind="$1"
+  awk -v k="$kind" -F'|' '$1 == k && $0 !~ /^#/ { print $2 }' "$COMPONENTS" | sort > "$T/want.$kind"
+  awk '$2 ~ /^lib/ { print $2 }' "$OUT/$kind.txt" | sort > "$T/have.$kind"
+  if diff -u "$T/want.$kind" "$T/have.$kind" > "$OUT/$kind.third-party.log"; then
+    echo "ok  $kind expose exactly the adopted libraries"
+  else
+    echo "ERROR: $kind differ from the adopted libraries:"; cat "$OUT/$kind.third-party.log"; fail=1
+  fi
+}
+third_party encoders
+third_party decoders
+
+# Removed capabilities must stay removed, and fail as unknown rather than crash.
+absent() { # kind name
+  if awk -v n="$2" '$2 == n { found = 1 } END { exit !found }' "$OUT/$1.txt"; then
+    echo "ERROR: $1 unexpectedly contains $2"; fail=1
+  else
+    echo "ok  $1 exclude $2"
+  fi
+}
+absent encoders libaom-av1
+absent encoders libwebp
+absent filters drawtext
+absent filters subtitles
+absent demuxers dvdvideo
+
 # --- encode -> decode smoke tests ---
-T="$OUT/tests"; mkdir -p "$T"
 smoke() { # name video-decoder-or-empty encoder-args...
   name="$1"; decoder="$2"; shift 2
   # Remove a previous run's file so it cannot satisfy the output check.
@@ -93,6 +125,9 @@ smoke() { # name video-decoder-or-empty encoder-args...
 }
 smoke x264.mp4 "" -f lavfi -i testsrc=size=320x240:rate=30 -t 2 -c:v libx264 -pix_fmt yuv420p
 smoke x265.mp4 "" -f lavfi -i testsrc=size=320x240:rate=30 -t 1 -c:v libx265 -pix_fmt yuv420p
+smoke vp8.webm libvpx -f lavfi -i testsrc=size=320x240:rate=30 -t 1 -c:v libvpx -pix_fmt yuv420p
+smoke vp9.webm libvpx-vp9 -f lavfi -i testsrc=size=320x240:rate=30 -t 1 \
+  -c:v libvpx-vp9 -pix_fmt yuv420p -b:v 500k
 smoke lame.mp3 "" -f lavfi -i sine=frequency=1000:sample_rate=44100 -t 2 -c:a libmp3lame
 smoke aac.m4a "" -f lavfi -i sine=sample_rate=44100 -t 2 -c:a aac
 smoke opus.ogg "" -f lavfi -i sine=sample_rate=48000 -t 2 -c:a libopus
@@ -113,15 +148,43 @@ probe() { # name expected-stream-type
 probe x264.mp4 video
 probe aac.m4a audio
 
-# 10-bit H.264 output is an acceptance condition (B-10).
+# A produced file only proves that encode and decode did not fail. Assert the
+# stream inside, so a truncated or mislabelled result cannot pass.
+frames() { # name expected
+  name="$1"; want="$2"
+  check "$name.frames" "$BIN/ffprobe" -v error -count_frames -select_streams v:0 \
+    -show_entries stream=nb_read_frames -of csv=p=0 "$T/$name" || return 0
+  got=$(tr -d '[:space:]' < "$OUT/$name.frames.log")
+  if [ "$got" = "$want" ]; then
+    echo "ok  $name has $want frames"
+  else
+    echo "ERROR: $name has ${got:-no} frames, expected $want"; fail=1
+  fi
+}
+pix_fmt() { # name expected
+  name="$1"; want="$2"
+  check "$name.pix_fmt" "$BIN/ffprobe" -v error -select_streams v:0 \
+    -show_entries stream=pix_fmt -of csv=p=0 "$T/$name" || return 0
+  got=$(tr -d '[:space:]' < "$OUT/$name.pix_fmt.log")
+  if [ "$got" = "$want" ]; then
+    echo "ok  $name is $want"
+  else
+    echo "ERROR: $name is ${got:-unknown}, expected $want"; fail=1
+  fi
+}
+frames x264.mp4 60
+frames x265.mp4 30
+frames vp8.webm 30
+frames vp9.webm 30
+frames av1-svt.ivf 3
+pix_fmt x265.mp4 yuv420p
+
+# 10-bit H.264 output is an acceptance condition (B-10). libx265 is built
+# 8-bit only (HIGH_BIT_DEPTH defaults off), so 10-bit HEVC encoding comes from
+# VideoToolbox, not from this library.
 smoke x264-10bit.mp4 "" -f lavfi -i testsrc=size=320x240:rate=30 -t 1 \
   -c:v libx264 -pix_fmt yuv420p10le
-if check x264-10bit.pix_fmt "$BIN/ffprobe" -v error -select_streams v:0 \
-   -show_entries stream=pix_fmt -of csv=p=0 "$T/x264-10bit.mp4"; then
-  if ! grep -qx yuv420p10le "$OUT/x264-10bit.pix_fmt.log"; then
-    echo "ERROR: libx264 did not produce 10-bit H.264"; fail=1
-  fi
-fi
+pix_fmt x264-10bit.mp4 yuv420p10le
 
 # --- ffplay: start and play a short clip (headless) ---
 if [ -x "$BIN/ffplay" ]; then
