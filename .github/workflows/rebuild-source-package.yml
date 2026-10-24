@@ -1,0 +1,42 @@
+name: rebuild-source-package
+
+# Rebuild a published release from its -sources package, without fetching any
+# upstream source, and run the full build verification. Run this after a release
+# or when the source collection changes; the check takes a full clean build.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, e.g. v9.0.2-r1
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  rebuild:
+    runs-on: macos-26
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Download the source package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/sources"
+          gh release download "$TAG" --pattern '*-sources.tar.xz' --dir "$RUNNER_TEMP/sources"
+
+      - name: Extract the source package
+        run: |
+          tar -xJf "$RUNNER_TEMP/sources/"*-sources.tar.xz -C "$RUNNER_TEMP/sources"
+          test -d "$RUNNER_TEMP/sources/ffmpeg-core-sources/project"
+          echo "SOURCE_PACKAGE=$RUNNER_TEMP/sources/ffmpeg-core-sources" >> "$GITHUB_ENV"
+
+      - name: Build and verify from the source package
+        uses: ./.github/actions/build
+        with:
+          clean_build: true
+          source_package: ${{ env.SOURCE_PACKAGE }}

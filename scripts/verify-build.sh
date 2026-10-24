@@ -219,6 +219,33 @@ case "$store" in
     echo "ERROR: unexpected TLS trust store: ${store:-none}"; fail=1 ;;
 esac
 
+# Reaching a real host also depends on the runner's route and on the remote end,
+# so record the outcome instead of failing the build on it.
+if "$BIN/ffmpeg" -nostdin -v verbose -i https://example.com/ -t 1 -f null - \
+     > "$OUT/tls-handshake.log" 2>&1; then
+  echo "ok  TLS handshake with a live host"
+elif grep -qiE "certificate|issuer|verify" "$OUT/tls-handshake.log"; then
+  echo "WARN: TLS verification failed against a live host (see tls-handshake.log)"
+else
+  echo "WARN: TLS probe did not complete (network or format; see tls-handshake.log)"
+fi
+
+# --- VideoToolbox (diagnostic until the runners prove stable) ---
+vt() { # name encoder-args...
+  name="$1"; shift
+  if "$BIN/ffmpeg" -nostdin -y -v error -f lavfi -i testsrc=size=320x240:rate=30 \
+       -t 1 "$@" "$T/vt-$name.mp4" > "$OUT/vt-$name.log" 2>&1; then
+    fmt=$("$BIN/ffprobe" -v error -select_streams v:0 -show_entries stream=pix_fmt \
+          -of csv=p=0 "$T/vt-$name.mp4" 2>/dev/null | tr -d '[:space:]')
+    echo "ok  VideoToolbox $name ($fmt)"
+  else
+    echo "WARN: VideoToolbox $name failed (see vt-$name.log)"
+    sed -n '1,3p' "$OUT/vt-$name.log" | sed 's/^/  | /'
+  fi
+}
+vt h264 -c:v h264_videotoolbox -pix_fmt yuv420p
+vt hevc10 -c:v hevc_videotoolbox -pix_fmt p010le
+
 # --- checksums ---
 ( cd "$BIN" && shasum -a 256 ffmpeg ffprobe ffplay > "$OUT/SHA256SUMS" )
 
