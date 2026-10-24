@@ -15,7 +15,7 @@ dav1d|meson|-Denable_tools=false -Denable_tests=false|
 SVT-AV1|cmake|-DBUILD_APPS=OFF -DBUILD_TESTING=OFF|
 libvpx|autotools|--enable-static --disable-shared --disable-examples --disable-tools --disable-docs --disable-unit-tests --enable-vp8 --enable-vp9 --enable-vp9-highbitdepth --enable-postproc --enable-multi-res-encoding --enable-pic|git pin (clone)
 x264|autotools|--enable-pic|
-x265|cmake-multi|-DENABLE_CLI=OFF -DENABLE_SHARED=OFF;-DHIGH_BIT_DEPTH=ON -DENABLE_CLI=OFF -DENABLE_SHARED=OFF -DEXPORT_C_API=OFF|8-bit installs, 10-bit merged|source/
+x265|cmake-multi|-DENABLE_CLI=OFF -DENABLE_SHARED=OFF -DLINKED_10BIT=ON;-DHIGH_BIT_DEPTH=ON -DENABLE_CLI=OFF -DENABLE_SHARED=OFF -DEXPORT_C_API=OFF|8-bit linked with 10-bit|source/
 libopus|autotools|--disable-extra-programs --disable-doc|
 lame|autotools|--disable-frontend --disable-decoder|
 openssl|perl|no-shared no-tests --openssldir=/etc/ssl|macOS system trust store|
