@@ -42,7 +42,7 @@ set -- \
   --extra-libs="$extra_libs" \
   --enable-gpl --enable-version3 \
   --enable-static --disable-shared --disable-debug \
-  --enable-libxml2 --enable-openssl \
+  --enable-libxml2 --enable-zlib --enable-bzlib --enable-iconv --enable-openssl \
   --enable-libdav1d --enable-libsvtav1 --enable-libvpx \
   --enable-libx264 --enable-libx265 \
   --enable-libopus --enable-libmp3lame \

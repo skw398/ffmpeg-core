@@ -63,6 +63,22 @@ for b in ffmpeg ffprobe ffplay; do
   fi
 done
 
+# --- otool: the non-framework set is exactly the documented one ---
+# The check above only rejects non-Apple paths. This one also catches a library
+# that appears without a decision, and one that silently disappears.
+grep -vE '^[[:space:]]*(#|$)' "$HERE/data/expected-dylibs.txt" | sort > "$OUT/expected.dylibs"
+for b in ffmpeg ffprobe ffplay; do
+  [ -f "$OUT/$b.otool.log" ] || continue
+  tail -n +2 "$OUT/$b.otool.log" | awk '{print $1}' \
+    | grep -v '\.framework/' | sort > "$OUT/$b.dylibs"
+  if diff -u "$OUT/expected.dylibs" "$OUT/$b.dylibs" > "$OUT/$b.dylibs.diff"; then
+    echo "ok  $b has exactly the documented system libraries"
+  else
+    echo "ERROR: $b dynamic dependencies differ from the documented set:"
+    cat "$OUT/$b.dylibs.diff"; fail=1
+  fi
+done
+
 # --- buildconf and feature lists ---
 check buildconf "$BIN/ffmpeg" -buildconf || :
 cp "$OUT/buildconf.log" "$OUT/buildconf.txt"

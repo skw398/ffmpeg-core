@@ -1,0 +1,15 @@
+# expected-dylibs.txt — dynamic dependencies outside frameworks, exactly.
+#
+# Every entry is an Apple-provided system library documented in README.md.
+# Anything else means a dependency was pulled in without a decision, so the
+# build verification compares this list with otool -L in both directions.
+#
+# System runtime (cannot be bundled):
+/usr/lib/libSystem.B.dylib
+/usr/lib/libc++.1.dylib
+/usr/lib/libobjc.A.dylib
+# System libraries used by FFmpeg features:
+/usr/lib/libbz2.1.0.dylib
+/usr/lib/libiconv.2.dylib
+/usr/lib/libxml2.2.dylib
+/usr/lib/libz.1.dylib

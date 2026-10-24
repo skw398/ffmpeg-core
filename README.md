@@ -23,7 +23,10 @@ small keeps the supply-chain surface and the rebuild simple.
 | TLS (https, HLS) | OpenSSL |
 | Playback | SDL2 |
 
-DASH and IMF input use Apple's libxml2, so no extra dependency is pinned.
+Everything else comes from macOS: zlib (PNG and TIFF decompression), bzip2
+(Matroska compressed headers), iconv (subtitle character sets) and libxml2
+(DASH and IMF input). They are listed in `scripts/data/expected-dylibs.txt` and
+compared with every binary, so no other system library can slip in unnoticed.
 
 Capabilities that FFmpeg implements itself remain available: MP4/MOV, Matroska
 and WebM, MPEG-TS, HLS, common native codecs (AAC, FLAC, ALAC, ProRes,
