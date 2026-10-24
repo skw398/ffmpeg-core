@@ -1,0 +1,41 @@
+name: verify-release
+
+# Install the published release the way a user does and run the full build
+# verification against the installed binaries. This covers what the build job
+# cannot: the tarball layout, checksum handling, the install script and the
+# artifact as it is actually downloaded.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installed:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Install the published release
+        run: |
+          test "$(uname -m)" = arm64
+          sh scripts/install-release.sh "$RUNNER_TEMP/release/bin"
+          "$RUNNER_TEMP/release/bin/ffmpeg" -version
+
+      - name: Verify the installed binaries
+        env:
+          PREFIX: ${{ runner.temp }}/release
+          OUT: ${{ runner.temp }}/verify
+        run: sh scripts/verify-build.sh
+
+      - name: Upload verification logs
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: verify-release
+          path: ${{ runner.temp }}/verify
+          if-no-files-found: ignore
+          retention-days: 7
