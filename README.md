@@ -35,9 +35,12 @@ VideoToolbox / AudioToolbox / AVFoundation.
 - Subtitle rendering and text drawing (`subtitles`, `ass`, `drawtext`).
   Subtitle streams can still be copied, extracted and remuxed.
 - Blu-ray and DVD input.
-- WebP, JPEG 2000 and JPEG XL output.
+- WebP and JPEG XL output.
 - OCR, QR codes, VMAF and other analysis filters.
 - Vorbis output.
+- Optional libraries outside [`deps.txt`](deps.txt): for example `zscale` (HDR
+  and color conversion), SRT and RIST streaming, audio fingerprinting, video
+  stabilization, and the `soxr` / `rubberband` resamplers.
 
 ## Links
 

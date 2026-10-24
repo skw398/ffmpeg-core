@@ -2,9 +2,11 @@
 #
 # Format (no spaces around "|"): name|kind|flags|note|subdir
 #   subdir: source subdirectory for the build system (default: the tree root)
-#   kind : autotools | cmake | meson | perl | make-copy | custom
-#   flags: passed verbatim after the common args; use @PREFIX@ for the install prefix
-#   order: build order (transitive dependencies first)
+#   kind  : autotools | cmake | cmake-multi | meson | perl
+#   flags : passed verbatim after the common args; use @PREFIX@ for the install prefix
+#           cmake-multi takes ';'-separated variants: the first is installed and
+#           the rest are merged into its static archive
+#   order : build order (transitive dependencies first)
 #
 # - name must match deps.txt (used for fetch/extract).
 # - This file describes the reduced configuration.
@@ -13,8 +15,8 @@ dav1d|meson|-Denable_tools=false -Denable_tests=false|
 SVT-AV1|cmake|-DBUILD_APPS=OFF -DBUILD_TESTING=OFF|
 libvpx|autotools|--enable-static --disable-shared --disable-examples --disable-tools --disable-docs --disable-unit-tests --enable-vp8 --enable-vp9 --enable-vp9-highbitdepth --enable-postproc --enable-multi-res-encoding --enable-pic|git pin (clone)
 x264|autotools|--enable-pic|
-x265|cmake|-DENABLE_CLI=OFF -DENABLE_SHARED=OFF|cmake in the source/ subdir|source/
+x265|cmake-multi|-DENABLE_CLI=OFF -DENABLE_SHARED=OFF;-DHIGH_BIT_DEPTH=ON -DENABLE_CLI=OFF -DENABLE_SHARED=OFF -DEXPORT_C_API=OFF|8-bit installs, 10-bit merged|source/
 libopus|autotools|--disable-extra-programs --disable-doc|
 lame|autotools|--disable-frontend --disable-decoder|
-openssl|perl|no-shared no-tests|
+openssl|perl|no-shared no-tests --openssldir=/etc/ssl|macOS system trust store|
 SDL2|cmake|-DSDL_SHARED=OFF -DSDL_STATIC=ON -DSDL_TEST=OFF|

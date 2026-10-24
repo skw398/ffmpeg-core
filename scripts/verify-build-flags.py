@@ -38,7 +38,7 @@ def main():
     pins = read_pins()
     failed = False
     for recipe in read_recipes():
-        if recipe.kind not in {"cmake", "meson", "autotools"}:
+        if recipe.kind not in {"cmake", "cmake-multi", "meson", "autotools"}:
             continue
         pin = pins.get(recipe.name)
         if not pin or pin.commit or not pin.checksum:
@@ -47,7 +47,8 @@ def main():
         if not archive.is_file():
             print(f"skip {recipe.name} (missing tarball)")
             continue
-        flags = {flag: flag_option(flag) for flag in recipe.flags.split()}
+        # cmake-multi lists one flag set per variant, separated by ";"
+        flags = {flag: flag_option(flag) for flag in recipe.flags.replace(";", " ").split()}
         flags = {flag: option for flag, option in flags.items()
                  if option and not option.endswith("_DIR") and not option.startswith("CMAKE_")}
         if not flags:

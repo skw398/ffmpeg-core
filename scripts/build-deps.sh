@@ -93,13 +93,43 @@ build_generic() {
         -DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET" $flags
       cmake --build "$src/.build" -j "$JOBS"
       cmake --install "$src/.build" ;;
+    cmake-multi)
+      # Some libraries ship one static archive per compiled feature (multi bit
+      # depth). The recipe lists the variants as ';'-separated flag sets: the
+      # first is installed normally and the rest are merged into its archive
+      # with libtool, so consumers still link a single library.
+      old_ifs=$IFS; IFS=';'; set -- $flags; IFS=$old_ifs
+      main_build=""; archives=""; n=0
+      for variant in "$@"; do
+        n=$((n + 1))
+        bdir="$src/.build-$n"
+        rm -rf "$bdir"
+        cmake -S "$src/$subdir" -B "$bdir" \
+          -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_BUILD_TYPE=Release \
+          -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DCMAKE_PREFIX_PATH="$PREFIX" \
+          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET" $variant
+        cmake --build "$bdir" -j "$JOBS"
+        found=$(find "$bdir" -maxdepth 1 -name '*.a' -print)
+        if [ "$(printf '%s\n' "$found" | wc -l | tr -d ' ')" -ne 1 ] || [ -z "$found" ]; then
+          echo "ERROR: $name: variant $n must produce one static archive, found: $found" >&2
+          exit 1
+        fi
+        archive="$found"
+        archives="$archives $archive"
+        [ -n "$main_build" ] || main_build="$bdir"
+      done
+      cmake --install "$main_build"
+      merged="$PREFIX/lib/.merged-$(basename "$archive")"
+      libtool -static -o "$merged" $archives
+      mv -f "$merged" "$PREFIX/lib/$(basename "$archive")" ;;
     meson)
       meson setup "$src/.build" "$src/$subdir" --prefix="$PREFIX" \
         --default-library=static --buildtype=release $flags
       ninja -C "$src/.build"
       ninja -C "$src/.build" install ;;
     perl)
-      ( cd "$src/$subdir" && ./Configure --prefix="$PREFIX" --openssldir="$PREFIX/ssl" $flags \
+      ( cd "$src/$subdir" && ./Configure --prefix="$PREFIX" $flags \
         && make -j"$JOBS" && make install_sw ) ;;
     *)
       echo "ERROR: unknown kind '$kind' for $name" >&2; exit 1 ;;

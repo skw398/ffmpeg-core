@@ -179,12 +179,21 @@ frames vp9.webm 30
 frames av1-svt.ivf 3
 pix_fmt x265.mp4 yuv420p
 
-# 10-bit H.264 output is an acceptance condition (B-10). libx265 is built
-# 8-bit only (HIGH_BIT_DEPTH defaults off), so 10-bit HEVC encoding comes from
-# VideoToolbox, not from this library.
+# 10-bit output is an acceptance condition for the adopted encoders. Encoding
+# succeeds even when the library is 8-bit only: FFmpeg then converts silently, so
+# the pixel format of the result is what decides.
 smoke x264-10bit.mp4 "" -f lavfi -i testsrc=size=320x240:rate=30 -t 1 \
   -c:v libx264 -pix_fmt yuv420p10le
+smoke x265-10bit.mp4 "" -f lavfi -i testsrc=size=320x240:rate=30 -t 1 \
+  -c:v libx265 -pix_fmt yuv420p10le
+smoke vp9-10bit.webm libvpx-vp9 -f lavfi -i testsrc=size=320x240:rate=30 -t 1 \
+  -c:v libvpx-vp9 -pix_fmt yuv420p10le -b:v 500k
+smoke svt-10bit.ivf libdav1d -f lavfi -i testsrc2=size=320x240:rate=3 \
+  -frames:v 2 -c:v libsvtav1 -preset 12 -pix_fmt yuv420p10le
 pix_fmt x264-10bit.mp4 yuv420p10le
+pix_fmt x265-10bit.mp4 yuv420p10le
+pix_fmt vp9-10bit.webm yuv420p10le
+pix_fmt svt-10bit.ivf yuv420p10le
 
 # --- ffplay: start and play a short clip (headless) ---
 if [ -x "$BIN/ffplay" ]; then
@@ -196,6 +205,19 @@ if [ -x "$BIN/ffplay" ]; then
     echo "ERROR: ffplay start/playback failed"; fail=1
   fi
 fi
+
+# --- TLS trust store ---
+# OpenSSL compiles in OPENSSLDIR and uses it for certificate verification. If it
+# points into the build tree, https fails on every machine but the runner's.
+store=$(strings "$BIN/ffmpeg" | grep -E '/ssl$' | sort -u | tr '\n' ' ')
+case "$store" in
+  */build/*|*/Users/*|*/home/*)
+    echo "ERROR: TLS trust store points into the build tree: $store"; fail=1 ;;
+  /etc/ssl*)
+    echo "ok  TLS trust store: $store" ;;
+  *)
+    echo "ERROR: unexpected TLS trust store: ${store:-none}"; fail=1 ;;
+esac
 
 # --- checksums ---
 ( cd "$BIN" && shasum -a 256 ffmpeg ffprobe ffplay > "$OUT/SHA256SUMS" )

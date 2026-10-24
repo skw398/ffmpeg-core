@@ -75,6 +75,11 @@ runs:
     # downloads) survive clean_build; build outputs (prefix, git sources with
     # their build dirs, FFmpeg trees) do not. cold_build drops everything, to
     # also validate pin fetching and tool installation.
+    # Build-output keys end with the ref so a run reuses its own newest entry
+    # first, but the restore prefix omits it, so a new branch starts from the
+    # newest entry of any ref instead of rebuilding everything. A restored tree
+    # that does not match the current recipe is rebuilt: per-library markers
+    # cover the prefix, and the FFmpeg key covers its configure inputs.
     - name: Restore Homebrew downloads
       id: cache-brew
       if: ${{ inputs.cold_build != 'true' }}
@@ -143,8 +148,8 @@ runs:
       uses: actions/cache/restore@v6.1.0
       with:
         path: build/prefix
-        key: prefix-v4-${{ github.workflow }}-${{ github.ref }}-${{ hashFiles('deps.txt') }}-${{ github.run_id }}
-        restore-keys: prefix-v4-${{ github.workflow }}-${{ github.ref }}-
+        key: prefix-v5-${{ github.workflow }}-${{ hashFiles('deps.txt') }}-${{ github.ref }}-${{ github.run_id }}
+        restore-keys: prefix-v5-${{ github.workflow }}-${{ hashFiles('deps.txt') }}-
 
     - name: Restore git sources cache
       id: cache-gitsrc
@@ -152,8 +157,8 @@ runs:
       uses: actions/cache/restore@v6.1.0
       with:
         path: ${{ env.GIT_SRC_PATHS }}
-        key: gitsrc-v2-${{ github.workflow }}-${{ github.ref }}-${{ hashFiles('deps.txt') }}
-        restore-keys: gitsrc-v2-${{ github.workflow }}-${{ github.ref }}-
+        key: gitsrc-v3-${{ github.workflow }}-${{ hashFiles('deps.txt') }}-${{ github.ref }}
+        restore-keys: gitsrc-v3-${{ github.workflow }}-${{ hashFiles('deps.txt') }}-
 
     - name: Restore FFmpeg build cache
       id: cache-ffmpeg
@@ -161,8 +166,8 @@ runs:
       uses: actions/cache/restore@v6.1.0
       with:
         path: build/src/ffmpeg
-        key: ffmpeg-v3-${{ github.workflow }}-${{ github.ref }}-${{ hashFiles('deps.txt', 'scripts/build-ffmpeg.sh', 'scripts/lib.sh') }}-xcode${{ env.XCODE_VERSION }}-${{ github.run_id }}
-        restore-keys: ffmpeg-v3-${{ github.workflow }}-${{ github.ref }}-${{ hashFiles('deps.txt', 'scripts/build-ffmpeg.sh', 'scripts/lib.sh') }}-xcode${{ env.XCODE_VERSION }}-
+        key: ffmpeg-v4-${{ github.workflow }}-${{ hashFiles('deps.txt', 'scripts/build-ffmpeg.sh', 'scripts/lib.sh') }}-xcode${{ env.XCODE_VERSION }}-${{ github.ref }}-${{ github.run_id }}
+        restore-keys: ffmpeg-v4-${{ github.workflow }}-${{ hashFiles('deps.txt', 'scripts/build-ffmpeg.sh', 'scripts/lib.sh') }}-xcode${{ env.XCODE_VERSION }}-
 
     - name: Verify pins
       shell: bash
@@ -192,14 +197,14 @@ runs:
       uses: actions/cache/save@v6.1.0
       with:
         path: build/prefix
-        key: prefix-v4-${{ github.workflow }}-${{ github.ref }}-${{ hashFiles('deps.txt') }}-${{ github.run_id }}
+        key: prefix-v5-${{ github.workflow }}-${{ hashFiles('deps.txt') }}-${{ github.ref }}-${{ github.run_id }}
 
     - name: Save git sources cache
       if: always() && steps.cache-gitsrc.outputs.cache-hit != 'true'
       uses: actions/cache/save@v6.1.0
       with:
         path: ${{ env.GIT_SRC_PATHS }}
-        key: gitsrc-v2-${{ github.workflow }}-${{ github.ref }}-${{ hashFiles('deps.txt') }}
+        key: gitsrc-v3-${{ github.workflow }}-${{ hashFiles('deps.txt') }}-${{ github.ref }}
 
     - name: Build FFmpeg
       shell: bash
@@ -210,7 +215,7 @@ runs:
       uses: actions/cache/save@v6.1.0
       with:
         path: build/src/ffmpeg
-        key: ffmpeg-v3-${{ github.workflow }}-${{ github.ref }}-${{ hashFiles('deps.txt', 'scripts/build-ffmpeg.sh', 'scripts/lib.sh') }}-xcode${{ env.XCODE_VERSION }}-${{ github.run_id }}
+        key: ffmpeg-v4-${{ github.workflow }}-${{ hashFiles('deps.txt', 'scripts/build-ffmpeg.sh', 'scripts/lib.sh') }}-xcode${{ env.XCODE_VERSION }}-${{ github.ref }}-${{ github.run_id }}
 
     - name: Check library consumers (configure)
       shell: bash
