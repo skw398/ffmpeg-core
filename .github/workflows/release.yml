@@ -1,0 +1,219 @@
+name: release
+
+# Cut a release: clean build -> tag -> GitHub Release -> attestations.
+#
+# Manual only. The version is chosen by a human: v<ffmpeg>-r<revision>,
+# e.g. v9.0.2-r1,
+# v9.0.2-r2 (security update), v9.1.0-r1 (FFmpeg bump).
+#
+# The released binaries must come from a *clean* build: the version/feature
+# detection can change with a pin, so a cached tree is not acceptable.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag, e.g. v9.0.2-r2"
+        required: true
+        type: string
+      notes:
+        description: "Release notes (e.g. why a security patch is being cut). Empty = generated"
+        type: string
+        default: ""
+      dry_run:
+        description: "Build and package, but do not tag, release or attest"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  # Reuse the build workflow. clean_build=true ignores the prefix / git / FFmpeg
+  # caches, so the release is built from the pinned sources every time.
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      clean_build: true
+      release_sources: true
+      artifact_name: ffmpeg-core-release
+    permissions:
+      contents: read
+
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Install pinned uv and Python
+        env:
+          UV_VERSION: "0.13.5"
+          UV_SHA256: "f68d291c75783122dad58ab77def0e13f3233f358731db5d6d7e8715603b928f"
+        run: |
+          uv_dir="$RUNNER_TEMP/uv-$UV_VERSION"
+          mkdir -p "$uv_dir"
+          curl -sSL --fail -o "$RUNNER_TEMP/uv.tar.gz" \
+            "https://github.com/astral-sh/uv/releases/download/$UV_VERSION/uv-x86_64-unknown-linux-gnu.tar.gz"
+          echo "$UV_SHA256  $RUNNER_TEMP/uv.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/uv.tar.gz" -C "$uv_dir" --strip-components=1
+          echo "$uv_dir" >> "$GITHUB_PATH"
+          "$uv_dir/uv" python install
+
+      - name: Download the build artifact
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: ffmpeg-core-release
+          path: dist
+
+      - name: Assemble the archive
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -eu
+          # upload-artifact stores files relative to the least common ancestor of
+          # the upload paths (here `build/`) and does not preserve the executable
+          # bit, so locate the files and restore the mode.
+          bindir=$(dirname "$(find dist -type f -name ffmpeg | head -1)")
+          assets=$(find dist -type d -path '*/artifacts/release' | head -1)
+          ls -l "$bindir" 2>/dev/null || true
+          [ -f "$bindir/ffmpeg" ] || { echo "ERROR: ffmpeg not found under dist" >&2; exit 1; }
+          [ -d "$assets" ] || { echo "ERROR: release assets not found under dist" >&2; exit 1; }
+          name="ffmpeg-core-$VERSION"
+          mkdir -p "$name/bin" "$name/share"
+          cp "$bindir/ffmpeg" "$bindir/ffprobe" "$bindir/ffplay" "$name/bin/"
+          chmod +x "$name/bin/ffmpeg" "$name/bin/ffprobe" "$name/bin/ffplay"
+          # licenses, dependency versions and buildconf
+          cp -R "$assets/." "$name/share/"
+          tar -cJf "$name.tar.xz" "$name"
+          rm -rf "$name"
+          sources=$(find dist -type f -name ffmpeg-core-sources.tar.xz | head -1)
+          [ -f "$sources" ] || { echo "ERROR: source package not found under dist" >&2; exit 1; }
+          cp "$sources" "$name-sources.tar.xz"
+
+      - name: Generate the SBOM
+        run: |
+          uv run python scripts/make-sbom.py \
+            --name "ffmpeg-core-${{ inputs.version }}" \
+            --out "ffmpeg-core-${{ inputs.version }}.spdx.json"
+
+      - name: Checksums
+        run: sha256sum ./*.tar.xz ./*.spdx.json > SHA256SUMS
+
+      - name: Verify the release package
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          uv run python scripts/verify-release-package.py \
+            --archive "ffmpeg-core-$VERSION.tar.xz" \
+            --sbom "ffmpeg-core-$VERSION.spdx.json" \
+            --sources "ffmpeg-core-$VERSION-sources.tar.xz"
+
+      - name: Upload release package
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ffmpeg-core-release-package
+          if-no-files-found: error
+          path: |
+            *.tar.xz
+            *.spdx.json
+            SHA256SUMS
+
+  # Execute the exact packaged binaries on Apple Silicon before publishing.
+  verify-runtime:
+    needs: package
+    runs-on: macos-26
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Download release package
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: ffmpeg-core-release-package
+          path: dist
+
+      - name: Verify packaged binaries
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -eu
+          test "$(uname -m)" = arm64
+          name="ffmpeg-core-$VERSION"
+          stage="$RUNNER_TEMP/release-runtime"
+          mkdir -p "$stage"
+          # The package job already checked paths, modes and file checksums.
+          # Do not chmod here: the archive itself must preserve executability.
+          (cd dist && shasum -a 256 -c SHA256SUMS)
+          tar -xJf "dist/$name.tar.xz" -C "$stage"
+          verify="$GITHUB_WORKSPACE/scripts/verify-build.sh"
+          cd "$stage"
+          # No build prefix is installed in this job. Remove library-path
+          # overrides and use only Apple system tools for the smoke checks.
+          unset DYLD_LIBRARY_PATH DYLD_FALLBACK_LIBRARY_PATH DYLD_FRAMEWORK_PATH
+          unset DYLD_FALLBACK_FRAMEWORK_PATH DYLD_INSERT_LIBRARIES
+          export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+          export PREFIX="$stage/$name"
+          export OUT="$RUNNER_TEMP/release-runtime-logs"
+          sh "$verify"
+
+      - name: Upload packaged binary verification logs
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ffmpeg-core-release-runtime
+          path: ${{ runner.temp }}/release-runtime-logs
+          if-no-files-found: warn
+
+  release:
+    needs: [package, verify-runtime]
+    if: ${{ !inputs.dry_run }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write       # create the tag and the Release
+      id-token: write       # sign the attestations (Sigstore)
+      attestations: write   # store the attestations
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Download verified release package
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: ffmpeg-core-release-package
+
+      - name: Check downloaded assets
+        run: sha256sum -c SHA256SUMS
+
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-checksums: SHA256SUMS
+
+      - name: Attest the SBOM
+        uses: actions/attest@v4
+        with:
+          subject-path: ffmpeg-core-${{ inputs.version }}.tar.xz
+          sbom-path: ffmpeg-core-${{ inputs.version }}.spdx.json
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          set -eu
+          assets="ffmpeg-core-$VERSION.tar.xz \
+                  ffmpeg-core-$VERSION-sources.tar.xz \
+                  ffmpeg-core-$VERSION.spdx.json SHA256SUMS"
+          if [ -n "${NOTES:-}" ]; then
+            gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" \
+              --notes "$NOTES" $assets
+          else
+            gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" \
+              --generate-notes $assets
+          fi

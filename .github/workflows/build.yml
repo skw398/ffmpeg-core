@@ -1,0 +1,51 @@
+name: build
+
+on:
+  workflow_dispatch:
+    inputs:
+      clean_build:
+        description: Ignore build-output caches
+        type: boolean
+        default: false
+      cold_build:
+        description: Ignore every cache, including tools and downloads
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      clean_build:
+        type: boolean
+        default: false
+      cold_build:
+        type: boolean
+        default: false
+      release_sources:
+        description: Collect fixed sources for release packaging
+        type: boolean
+        default: false
+      artifact_name:
+        description: Name of the uploaded build artifact
+        type: string
+        default: ffmpeg-core
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  macos-arm64:
+    runs-on: macos-26
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Build and verify FFmpeg
+        uses: ./.github/actions/build
+        env:
+          FORCE_REBUILD: ${{ vars.FORCE_REBUILD }}
+        with:
+          clean_build: ${{ inputs.clean_build }}
+          cold_build: ${{ inputs.cold_build }}
+          release_sources: ${{ inputs.release_sources }}
+          artifact_name: ${{ inputs.artifact_name || 'ffmpeg-core' }}

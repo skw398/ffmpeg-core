@@ -1,0 +1,16 @@
+# adopted-libs.txt — configure tokens of the adopted external libraries.
+# Used by: scripts/lib-consumers.py --check to verify enabled consumers in CI.
+# One token per line; blank lines and # comments ignored.
+#
+# Reduced configuration. SDL2 is not an FFmpeg configure token (ffplay links
+# it), and libxml2 is the Apple-provided system library. Every pinned library is
+# consumed directly; there are no transitive pins.
+libdav1d
+libsvtav1
+libvpx
+libx264
+libx265
+libopus
+libmp3lame
+openssl
+libxml2

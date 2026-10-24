@@ -1,0 +1,20 @@
+# build-deps.txt — build order and per-library build recipe (data for build-deps.sh)
+#
+# Format (no spaces around "|"): name|kind|flags|note|subdir
+#   subdir: source subdirectory for the build system (default: the tree root)
+#   kind : autotools | cmake | meson | perl | make-copy | custom
+#   flags: passed verbatim after the common args; use @PREFIX@ for the install prefix
+#   order: build order (transitive dependencies first)
+#
+# - name must match deps.txt (used for fetch/extract).
+# - This file describes the reduced configuration.
+
+dav1d|meson|-Denable_tools=false -Denable_tests=false|
+SVT-AV1|cmake|-DBUILD_APPS=OFF -DBUILD_TESTING=OFF|
+libvpx|autotools|--enable-static --disable-shared --disable-examples --disable-tools --disable-docs --disable-unit-tests --enable-vp8 --enable-vp9 --enable-vp9-highbitdepth --enable-postproc --enable-multi-res-encoding --enable-pic|git pin (clone)
+x264|autotools|--enable-pic|
+x265|cmake|-DENABLE_CLI=OFF -DENABLE_SHARED=OFF|cmake in the source/ subdir|source/
+libopus|autotools|--disable-extra-programs --disable-doc|
+lame|autotools|--disable-frontend --disable-decoder|
+openssl|perl|no-shared no-tests|
+SDL2|cmake|-DSDL_SHARED=OFF -DSDL_STATIC=ON -DSDL_TEST=OFF|

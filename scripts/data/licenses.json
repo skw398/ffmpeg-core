@@ -1,0 +1,179 @@
+{
+  "licenseListVersion": "3.29.0",
+  "licenseListSource": "https://github.com/spdx/license-list-data/blob/main/json/licenses.json",
+  "licenseIds": [
+    "0BSD",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSD-3-Clause-Clear",
+    "BSL-1.0",
+    "CC0-1.0",
+    "FTL",
+    "GPL-2.0-or-later",
+    "GPL-3.0-or-later",
+    "ISC",
+    "LGPL-2.0-or-later",
+    "LGPL-2.1-only",
+    "LGPL-2.1-or-later",
+    "MIT",
+    "MIT-Modern-Variant",
+    "MPL-2.0",
+    "TU-Berlin-1.0",
+    "TU-Berlin-2.0",
+    "WTFPL",
+    "Zlib",
+    "libpng-2.0"
+  ],
+  "packages": {
+    "ffmpeg": {
+      "version": "9.0.2",
+      "checksum": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+      "expression": "GPL-3.0-or-later",
+      "comment": "LICENSE.md declares GPLv2-or-later with --enable-gpl; --enable-version3 selects GPLv3-or-later for this build. This is the configured FFmpeg component declaration, not a license conclusion for every linked file.",
+      "evidence": {
+        "LICENSE.md": "2e1d16c72fd74e12063776371da757322f8b77589386532f4fd8634bde7de1af"
+      },
+      "licenseFiles": [
+        "LICENSE.md"
+      ]
+    },
+    "dav1d": {
+      "version": "1.5.4",
+      "checksum": "COMMIT=54706fc6bc0cdecab7e9593974a4039cc038fca7",
+      "expression": "BSD-2-Clause AND LicenseRef-dav1d-AOM-Patent",
+      "comment": "Upstream copyright license plus its separate patent grant. The patent text is reproduced as a LicenseRef; the expression is not a statement about patent coverage.",
+      "evidence": {
+        "COPYING": "dd92c3c2247c5651606fc23a5e2d6a1ebc5ace9a3e49cbde0e12f05ad1cb1ee5",
+        "doc/PATENTS": "335eca574598bf4ca181b12f708d6669e5a5e78c8e1513e5b35fa1f03901484b"
+      },
+      "licenseFiles": [
+        "COPYING",
+        "doc/PATENTS"
+      ]
+    },
+    "SVT-AV1": {
+      "version": "v4.2.0",
+      "checksum": "COMMIT=9292ec8e32bce26f781f277ec8739b53426c4300",
+      "expression": "BSD-3-Clause-Clear AND BSD-2-Clause AND LicenseRef-SVT-AV1-AOM-Patent",
+      "comment": "Upstream copyright license plus its separate patent grant. The patent text is reproduced as a LicenseRef; the expression is not a statement about patent coverage.",
+      "evidence": {
+        "LICENSE.md": "0acc2fcb27472bdc9aaf8b71f37055bbdac4f54671b7d922f241bd7fcd0dd3e6",
+        "LICENSE-BSD2.md": "c582fcbeb9cf972a60d298bfaf41dc5adff2dd14208946edcb9bb56a281e8438",
+        "PATENTS.md": "20678ab10402659106dc4c147c97b2a6e94b5c0695415e15a8f195ebc3547922"
+      },
+      "licenseFiles": [
+        "LICENSE.md",
+        "LICENSE-BSD2.md",
+        "PATENTS.md"
+      ]
+    },
+    "libvpx": {
+      "version": "v1.17.0",
+      "checksum": "COMMIT=6df3ec34557879fff673706f4a1d9fbd0f3a6f0e",
+      "expression": "BSD-3-Clause AND LicenseRef-WebM-Patent",
+      "comment": "Upstream copyright license plus its separate patent grant. The patent text is reproduced as a LicenseRef; the expression is not a statement about patent coverage.",
+      "evidence": {
+        "LICENSE": "8267348d5af1262c11d1a08de2f5afc77457755f1ac658627dd9acf71011d615",
+        "PATENTS": "cc3273e0694ea5896145e0677699b53471b03ea43021ddc50e7923fbb9f5023c"
+      },
+      "licenseFiles": [
+        "LICENSE",
+        "PATENTS"
+      ]
+    },
+    "x264": {
+      "version": "b35605ace3ddf7c1a5d67a2eb553f034aef41d55",
+      "checksum": "COMMIT=b35605ace3ddf7c1a5d67a2eb553f034aef41d55",
+      "expression": "GPL-2.0-or-later",
+      "comment": "Upstream library declaration; file-level license conclusions are not asserted.",
+      "evidence": {
+        "COPYING": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670",
+        "common/common.h": "b335fa4b534737b2816c22d267e95ab6b58803c38e1b4fb613059a103e69f68c"
+      },
+      "licenseFiles": [
+        "COPYING"
+      ]
+    },
+    "x265": {
+      "version": "4.2",
+      "checksum": "40b1ea0453e0309f0eba934e0ddf533f8f6295966679e8894e8f1c1c8d5e1210",
+      "expression": "GPL-2.0-or-later",
+      "comment": "Upstream library declaration; file-level license conclusions are not asserted.",
+      "evidence": {
+        "COPYING": "d8afb1bcc7a2cfc603683b168d6987ef0a48e59e0da3693bf55c5d33b67e2b49",
+        "source/common/common.h": "6c8285d6c63269431df9e7f4412c490ce1cf81f3d449a6a4f686e8513de08ef2"
+      },
+      "licenseFiles": [
+        "COPYING"
+      ]
+    },
+    "libopus": {
+      "version": "1.6.1",
+      "checksum": "6ffcb593207be92584df15b32466ed64bbec99109f007c82205f0194572411a1",
+      "expression": "BSD-3-Clause",
+      "comment": "COPYING declares BSD-3-Clause and cites external Xiph/Microsoft/Broadcom patent grants. Those external grants are not collapsed into a guessed SPDX identifier; the upstream notice is included.",
+      "evidence": {
+        "COPYING": "01e1167d54a096d123cf6dfbbeb19587278845c6481d2d66d545669846079551"
+      },
+      "licenseFiles": [
+        "COPYING"
+      ]
+    },
+    "lame": {
+      "version": "4.0",
+      "checksum": "3df5124d5ad3a98312ffd7ba6a9b36230e4f8a3e66d3ce0f425e336c32d216eb",
+      "expression": "LGPL-2.0-or-later",
+      "comment": "COPYING is GNU Library GPL version 2; libmp3lame/lame.c explicitly permits later versions. The previous LGPL-2.1+ note was incorrect.",
+      "evidence": {
+        "COPYING": "e64f9c5a18f56828c10a575df13ade641aa3af4512a7afe6c411256943b57aaf",
+        "libmp3lame/lame.c": "cea1305685d8b669ddee2c7bc7e34ddb7ae0d3fe80b79072033cf9b9ee693e89"
+      },
+      "licenseFiles": [
+        "COPYING"
+      ]
+    },
+    "openssl": {
+      "version": "4.0.3",
+      "checksum": "325b5c806167c13b40b1ffeadfe0248197c00eccc4cf123ec1e28d2d2fd216d9",
+      "expression": "Apache-2.0",
+      "comment": "Upstream library declaration; file-level license conclusions are not asserted.",
+      "evidence": {
+        "LICENSE.txt": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+      },
+      "licenseFiles": [
+        "LICENSE.txt"
+      ]
+    },
+    "SDL2": {
+      "version": "release-2.32.10",
+      "checksum": "COMMIT=5d249570393f7a37e037abf22cd6012a4cc56a71",
+      "expression": "Zlib",
+      "comment": "Upstream library declaration; file-level license conclusions are not asserted.",
+      "evidence": {
+        "LICENSE.txt": "97f35b302b361680ec1e891e95d2d52097bb95abff361434916d99dc1305f127"
+      },
+      "licenseFiles": [
+        "LICENSE.txt"
+      ]
+    }
+  },
+  "extractedLicensingInfo": [
+    {
+      "licenseId": "LicenseRef-dav1d-AOM-Patent",
+      "name": "Alliance for Open Media Patent License 1.0 (dav1d text)",
+      "extractedText": "Alliance for Open Media Patent License 1.0\n\n1. License Terms.\n\n1.1. Patent License. Subject to the terms and conditions of this License, each\n     Licensor, on behalf of itself and successors in interest and assigns,\n     grants Licensee a non-sublicensable, perpetual, worldwide, non-exclusive,\n     no-charge, royalty-free, irrevocable (except as expressly stated in this\n     License) patent license to its Necessary Claims to make, use, sell, offer\n     for sale, import or distribute any Implementation.\n\n1.2. Conditions.\n\n1.2.1. Availability. As a condition to the grant of rights to Licensee to make,\n       sell, offer for sale, import or distribute an Implementation under\n       Section 1.1, Licensee must make its Necessary Claims available under\n       this License, and must reproduce this License with any Implementation\n       as follows:\n\n       a. For distribution in source code, by including this License in the\n          root directory of the source code with its Implementation.\n\n       b. For distribution in any other form (including binary, object form,\n          and/or hardware description code (e.g., HDL, RTL, Gate Level Netlist,\n          GDSII, etc.)), by including this License in the documentation, legal\n          notices, and/or other written materials provided with the\n          Implementation.\n\n1.2.2. Additional Conditions. This license is directly from Licensor to\n       Licensee.  Licensee acknowledges as a condition of benefiting from it\n       that no rights from Licensor are received from suppliers, distributors,\n       or otherwise in connection with this License.\n\n1.3. Defensive Termination. If any Licensee, its Affiliates, or its agents\n     initiates patent litigation or files, maintains, or voluntarily\n     participates in a lawsuit against another entity or any person asserting\n     that any Implementation infringes Necessary Claims, any patent licenses\n     granted under this License directly to the Licensee are immediately\n     terminated as of the date of the initiation of action unless 1) that suit\n     was in response to a corresponding suit regarding an Implementation first\n     brought against an initiating entity, or 2) that suit was brought to\n     enforce the terms of this License (including intervention in a third-party\n     action by a Licensee).\n\n1.4. Disclaimers. The Reference Implementation and Specification are provided\n     \"AS IS\" and without warranty. The entire risk as to implementing or\n     otherwise using the Reference Implementation or Specification is assumed\n     by the implementer and user. Licensor expressly disclaims any warranties\n     (express, implied, or otherwise), including implied warranties of\n     merchantability, non-infringement, fitness for a particular purpose, or\n     title, related to the material. IN NO EVENT WILL LICENSOR BE LIABLE TO\n     ANY OTHER PARTY FOR LOST PROFITS OR ANY FORM OF INDIRECT, SPECIAL,\n     INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER FROM ANY CAUSES OF\n     ACTION OF ANY KIND WITH RESPECT TO THIS LICENSE, WHETHER BASED ON BREACH\n     OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR OTHERWISE, AND WHETHER OR\n     NOT THE OTHER PARTRY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n2. Definitions.\n\n2.1. Affiliate.  “Affiliate” means an entity that directly or indirectly\n     Controls, is Controlled by, or is under common Control of that party.\n\n2.2. Control. “Control” means direct or indirect control of more than 50% of\n     the voting power to elect directors of that corporation, or for any other\n     entity, the power to direct management of such entity.\n\n2.3. Decoder.  \"Decoder\" means any decoder that conforms fully with all\n     non-optional portions of the Specification.\n\n2.4. Encoder.  \"Encoder\" means any encoder that produces a bitstream that can\n     be decoded by a Decoder only to the extent it produces such a bitstream.\n\n2.5. Final Deliverable.  “Final Deliverable” means the final version of a\n     deliverable approved by the Alliance for Open Media as a Final\n     Deliverable.\n\n2.6. Implementation.  \"Implementation\" means any implementation, including the\n     Reference Implementation, that is an Encoder and/or a Decoder. An\n     Implementation also includes components of an Implementation only to the\n     extent they are used as part of an Implementation.\n\n2.7. License. “License” means this license.\n\n2.8. Licensee. “Licensee” means any person or entity who exercises patent\n     rights granted under this License.\n\n2.9. Licensor.  \"Licensor\" means (i) any Licensee that makes, sells, offers\n     for sale, imports or distributes any Implementation, or (ii) a person\n     or entity that has a licensing obligation to the Implementation as a\n     result of its membership and/or participation in the Alliance for Open\n     Media working group that developed the Specification.\n\n2.10. Necessary Claims.  \"Necessary Claims\" means all claims of patents or\n      patent applications, (a) that currently or at any time in the future,\n      are owned or controlled by the Licensor, and (b) (i) would be an\n      Essential Claim as defined by the W3C Policy as of February 5, 2004\n      (https://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential)\n      as if the Specification was a W3C Recommendation; or (ii) are infringed\n      by the Reference Implementation.\n\n2.11. Reference Implementation. “Reference Implementation” means an Encoder\n      and/or Decoder released by the Alliance for Open Media as a Final\n      Deliverable.\n\n2.12. Specification. “Specification” means the specification designated by\n      the Alliance for Open Media as a Final Deliverable for which this\n      License was issued.\n\n"
+    },
+    {
+      "licenseId": "LicenseRef-SVT-AV1-AOM-Patent",
+      "name": "Alliance for Open Media Patent License 1.0 (SVT-AV1 text)",
+      "extractedText": "**Alliance for Open Media Patent License 1.0**\n\n 1. **License Terms.**\n\n    **Patent License.** Subject to the terms and conditions of this License, each\n     Licensor, on behalf of itself and successors in interest and assigns,\n     grants Licensee a non-sublicensable, perpetual, worldwide, non-exclusive,\n     no-charge, royalty-free, irrevocable (except as expressly stated in this\n     License) patent license to its Necessary Claims to make, use, sell, offer\n     for sale, import or distribute any Implementation.\n\n     **Conditions.**\n\n    *Availability.* As a condition to the grant of rights to Licensee to make,\n       sell, offer for sale, import or distribute an Implementation under\n       Section 1.1, Licensee must make its Necessary Claims available under\n       this License, and must reproduce this License with any Implementation\n       as follows:\n\n          a. For distribution in source code, by including this License in the\n          root directory of the source code with its Implementation.\n\n          b. For distribution in any other form (including binary, object form,\n          and/or hardware description code (e.g., HDL, RTL, Gate Level Netlist,\n          GDSII, etc.)), by including this License in the documentation, legal\n          notices, and/or other written materials provided with the\n          Implementation.\n\n    *Additional Conditions.* This license is directly from Licensor to\n       Licensee.  Licensee acknowledges as a condition of benefiting from it\n       that no rights from Licensor are received from suppliers, distributors,\n       or otherwise in connection with this License.\n\n    **Defensive Termination**. If any Licensee, its Affiliates, or its agents\n     initiates patent litigation or files, maintains, or voluntarily\n     participates in a lawsuit against another entity or any person asserting\n     that any Implementation infringes Necessary Claims, any patent licenses\n     granted under this License directly to the Licensee are immediately\n     terminated as of the date of the initiation of action unless 1) that suit\n     was in response to a corresponding suit regarding an Implementation first\n     brought against an initiating entity, or 2) that suit was brought to\n     enforce the terms of this License (including intervention in a third-party\n     action by a Licensee).\n\n    **Disclaimers.** The Reference Implementation and Specification are provided\n     \"AS IS\" and without warranty. The entire risk as to implementing or\n     otherwise using the Reference Implementation or Specification is assumed\n     by the implementer and user. Licensor expressly disclaims any warranties\n     (express, implied, or otherwise), including implied warranties of\n     merchantability, non-infringement, fitness for a particular purpose, or\n     title, related to the material. IN NO EVENT WILL LICENSOR BE LIABLE TO\n     ANY OTHER PARTY FOR LOST PROFITS OR ANY FORM OF INDIRECT, SPECIAL,\n     INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER FROM ANY CAUSES OF\n     ACTION OF ANY KIND WITH RESPECT TO THIS LICENSE, WHETHER BASED ON BREACH\n     OF CONTRACT, TORT (INCLUDING NEGLIGENCE), OR OTHERWISE, AND WHETHER OR\n     NOT THE OTHER PARTRY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n2. **Definitions.**\n\n     **Affiliate.**  \"Affiliate\" means an entity that directly or indirectly\n     Controls, is Controlled by, or is under common Control of that party.\n\n    **Control.** \"Control\" means direct or indirect control of more than 50% of\n     the voting power to elect directors of that corporation, or for any other\n     entity, the power to direct management of such entity.\n\n    **Decoder.**  \"Decoder\" means any decoder that conforms fully with all\n     non-optional portions of the Specification.\n\n    **Encoder.**  \"Encoder\" means any encoder that produces a bitstream that can\n     be decoded by a Decoder only to the extent it produces such a bitstream.\n\n    **Final Deliverable.**  \"Final Deliverable\" means the final version of a\n     deliverable approved by the Alliance for Open Media as a Final\n     Deliverable.\n\n    **Implementation.**  \"Implementation\" means any implementation, including the\n     Reference Implementation, that is an Encoder and/or a Decoder. An\n     Implementation also includes components of an Implementation only to the\n     extent they are used as part of an Implementation.\n\n    **License.** \"License\" means this license.\n\n    **Licensee.** \"Licensee\" means any person or entity who exercises patent\n     rights granted under this License.\n\n    **Licensor.**  \"Licensor\" means (i) any Licensee that makes, sells, offers\n     for sale, imports or distributes any Implementation, or (ii) a person\n     or entity that has a licensing obligation to the Implementation as a\n     result of its membership and/or participation in the Alliance for Open\n     Media working group that developed the Specification.\n\n    **Necessary Claims.**  \"Necessary Claims\" means all claims of patents or\n      patent applications, (a) that currently or at any time in the future,\n      are owned or controlled by the Licensor, and (b) (i) would be an\n      Essential Claim as defined by the W3C Policy as of February 5, 2004\n      (https://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential)\n      as if the Specification was a W3C Recommendation; or (ii) are infringed\n      by the Reference Implementation.\n\n     **Reference Implementation.** \"Reference Implementation\" means an Encoder\n      and/or Decoder released by the Alliance for Open Media as a Final\n      Deliverable.\n\n     **Specification.** \"Specification\" means the specification designated by\n      the Alliance for Open Media as a Final Deliverable for which this\n      License was issued.\n"
+    },
+    {
+      "licenseId": "LicenseRef-WebM-Patent",
+      "name": "WebM Additional IP Rights Grant",
+      "extractedText": "Additional IP Rights Grant (Patents)\n------------------------------------\n\n\"These implementations\" means the copyrightable works that implement the WebM\ncodecs distributed by Google as part of the WebM Project.\n\nGoogle hereby grants to you a perpetual, worldwide, non-exclusive, no-charge,\nroyalty-free, irrevocable (except as stated in this section) patent license to\nmake, have made, use, offer to sell, sell, import, transfer, and otherwise\nrun, modify and propagate the contents of these implementations of WebM, where\nsuch license applies only to those patent claims, both currently owned by\nGoogle and acquired in the future, licensable by Google that are necessarily\ninfringed by these implementations of WebM. This grant does not include claims\nthat would be infringed only as a consequence of further modification of these\nimplementations. If you or your agent or exclusive licensee institute or order\nor agree to the institution of patent litigation or any other patent\nenforcement activity against any entity (including a cross-claim or\ncounterclaim in a lawsuit) alleging that any of these implementations of WebM\nor any code incorporated within any of these implementations of WebM\nconstitute direct or contributory patent infringement, or inducement of\npatent infringement, then any patent rights granted to you under this License\nfor these implementations of WebM shall terminate as of the date such\nlitigation is filed.\n"
+    }
+  ],
+  "licenseListSha256": "47d1cc681abe31166b342b6cc4aab13a6ba8ea5c48794697fe3bf8b1dbaf509a"
+}
