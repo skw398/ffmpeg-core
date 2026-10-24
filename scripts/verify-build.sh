@@ -220,31 +220,41 @@ case "$store" in
 esac
 
 # Reaching a real host also depends on the runner's route and on the remote end,
-# so record the outcome instead of failing the build on it.
+# so record the outcome instead of failing the build on it. A parse error means
+# the handshake and the HTTP exchange succeeded; only a certificate error points
+# at the build.
 if "$BIN/ffmpeg" -nostdin -v verbose -i https://example.com/ -t 1 -f null - \
      > "$OUT/tls-handshake.log" 2>&1; then
   echo "ok  TLS handshake with a live host"
 elif grep -qiE "certificate|issuer|verify" "$OUT/tls-handshake.log"; then
-  echo "WARN: TLS verification failed against a live host (see tls-handshake.log)"
+  echo "WARN: TLS verification failed against a live host"
+  grep -iE "certificate|issuer|verify" "$OUT/tls-handshake.log" | head -2 | sed 's/^/  | /'
+elif grep -qiE "invalid data found|server returned|http error" "$OUT/tls-handshake.log"; then
+  echo "ok  TLS handshake with a live host (response was not media)"
 else
-  echo "WARN: TLS probe did not complete (network or format; see tls-handshake.log)"
+  echo "WARN: TLS probe could not reach the host"
+  tail -2 "$OUT/tls-handshake.log" | sed 's/^/  | /'
 fi
 
-# --- VideoToolbox (diagnostic until the runners prove stable) ---
-vt() { # name encoder-args...
-  name="$1"; shift
-  if "$BIN/ffmpeg" -nostdin -y -v error -f lavfi -i testsrc=size=320x240:rate=30 \
+# --- VideoToolbox: hardware encode paths (acceptance condition B-9) ---
+vt() { # name expected-pixel-format encoder-args...
+  name="$1"; want="$2"; shift 2
+  if ! "$BIN/ffmpeg" -nostdin -y -v error -f lavfi -i testsrc=size=320x240:rate=30 \
        -t 1 "$@" "$T/vt-$name.mp4" > "$OUT/vt-$name.log" 2>&1; then
-    fmt=$("$BIN/ffprobe" -v error -select_streams v:0 -show_entries stream=pix_fmt \
-          -of csv=p=0 "$T/vt-$name.mp4" 2>/dev/null | tr -d '[:space:]')
-    echo "ok  VideoToolbox $name ($fmt)"
+    echo "ERROR: VideoToolbox $name encode failed (see vt-$name.log)"; fail=1
+    tail -3 "$OUT/vt-$name.log" | sed 's/^/  | /'
+    return 0
+  fi
+  got=$("$BIN/ffprobe" -v error -select_streams v:0 -show_entries stream=pix_fmt \
+        -of csv=p=0 "$T/vt-$name.mp4" 2>/dev/null | tr -d '[:space:]')
+  if [ "$got" = "$want" ]; then
+    echo "ok  VideoToolbox $name is $want"
   else
-    echo "WARN: VideoToolbox $name failed (see vt-$name.log)"
-    sed -n '1,3p' "$OUT/vt-$name.log" | sed 's/^/  | /'
+    echo "ERROR: VideoToolbox $name is ${got:-unknown}, expected $want"; fail=1
   fi
 }
-vt h264 -c:v h264_videotoolbox -pix_fmt yuv420p
-vt hevc10 -c:v hevc_videotoolbox -pix_fmt p010le
+vt h264 yuv420p -c:v h264_videotoolbox -pix_fmt yuv420p
+vt hevc10 yuv420p10le -c:v hevc_videotoolbox -pix_fmt p010le
 
 # --- checksums ---
 ( cd "$BIN" && shasum -a 256 ffmpeg ffprobe ffplay > "$OUT/SHA256SUMS" )
