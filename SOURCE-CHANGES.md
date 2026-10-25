@@ -2,7 +2,7 @@
 
 This distribution is built by skw398 from the sources pinned in `deps.txt`,
 with the modifications described below. It is not an unmodified upstream
-build. Notice updated: 2026-10-24. Dates below record when the modifications
+build. Notice updated: 2026-10-25. Dates below record when the modifications
 were introduced or revised in this project's history, not the date on which
 an individual CI build applies them.
 
@@ -26,6 +26,9 @@ they apply to the pinned components, including their supplied subdirectories.
 
 Compiler flags and other selected build options are recorded in
 `scripts/data/build-deps.txt`, the build scripts and the packaged
-`build-info/buildconf.txt`. Generated build outputs and installation metadata
+`build-info/buildconf.txt`. Two of them compensate for toolchain changes rather
+than modify files: a `size_t` preinclude passed through `CXXFLAGS` (newer libc++
+no longer provides it transitively) and `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`
+(CMake 4 with older projects). Both are set by `scripts/build-deps.sh`. Generated build outputs and installation metadata
 are recreated by those scripts. `BUILDING.md` describes how to rebuild or
 apply further modifications; `LICENSING.md` describes the license scope.
