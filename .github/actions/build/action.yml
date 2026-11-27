@@ -95,10 +95,14 @@ runs:
       shell: bash
       run: |
         missing=""
-        for t in nasm pkgconf autoconf automake libtool gettext perl; do
+        for t in nasm pkgconf autoconf automake libtool gettext perl ca-certificates; do
           brew list --formula "$t" >/dev/null 2>&1 || missing="$missing $t"
         done
         if [ -n "$missing" ]; then brew install $missing; fi
+        # Python's default macOS CA file can lag behind roots used by mirrors
+        # (an incomplete chain such as ftp.osuosl.org fails urllib). Use the
+        # Homebrew bundle, which merges the system keychain and Mozilla roots.
+        echo "SSL_CERT_FILE=$(brew --prefix)/etc/ca-certificates/cert.pem" >> "$GITHUB_ENV"
 
     - name: Restore pinned tools cache
       id: cache-tools
