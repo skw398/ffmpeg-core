@@ -27,20 +27,20 @@
   ],
   "packages": {
     "ffmpeg": {
-      "version": "9.0.2",
-      "checksum": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+      "version": "9.1",
+      "checksum": "1a4d394ae63d190a526cd052eb4415c156b5c5e2df37efab41a7de0b8fde2433",
       "expression": "GPL-3.0-or-later",
       "comment": "LICENSE.md declares GPLv2-or-later with --enable-gpl; --enable-version3 selects GPLv3-or-later for this build. This is the configured FFmpeg component declaration, not a license conclusion for every linked file.",
       "evidence": {
-        "LICENSE.md": "2e1d16c72fd74e12063776371da757322f8b77589386532f4fd8634bde7de1af"
+        "LICENSE.md": "e6dc72d5665a1ebd6dcc841de59278dad4ca77ecc47b03f1064a55c3e9ea8bb8"
       },
       "licenseFiles": [
         "LICENSE.md"
       ]
     },
     "dav1d": {
-      "version": "1.5.4",
-      "checksum": "COMMIT=54706fc6bc0cdecab7e9593974a4039cc038fca7",
+      "version": "1.5.5",
+      "checksum": "COMMIT=6c7bee685677fd997a431302be4fea8ea4017606",
       "expression": "BSD-2-Clause AND LicenseRef-dav1d-AOM-Patent",
       "comment": "Upstream copyright license plus its separate patent grant. The patent text is reproduced as a LicenseRef; the expression is not a statement about patent coverage.",
       "evidence": {
@@ -53,8 +53,8 @@
       ]
     },
     "SVT-AV1": {
-      "version": "v4.2.0",
-      "checksum": "COMMIT=9292ec8e32bce26f781f277ec8739b53426c4300",
+      "version": "v4.3.1",
+      "checksum": "COMMIT=462771f87694e959cc1d3f9addde23d7015662e3",
       "expression": "BSD-3-Clause-Clear AND BSD-2-Clause AND LicenseRef-SVT-AV1-AOM-Patent",
       "comment": "Upstream copyright license plus its separate patent grant. The patent text is reproduced as a LicenseRef; the expression is not a statement about patent coverage.",
       "evidence": {
